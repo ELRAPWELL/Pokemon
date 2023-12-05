@@ -1,43 +1,32 @@
 import React from "react";
 
 const Pokeinfo = ({ data }) => {
-   
-    return (
+  return (
+    <>
+      {data ? (
         <>
-        {
-            (!data) ? "" : (
-                <>
-                    <h1>{data.name}</h1>
-                    <img src={`https://unpkg.com/pokeapi-sprites@2.0.2/sprites/pokemon/other/dream-world/${data.id}.svg`} alt="" />
-                    <div className="abilities">
-                        {
-                            data.abilities.map(poke=>{
-                                return(
-                                    <>
-                                     <div className="group">
-                                        <h2>{poke.ability.name}</h2>
-                                    </div>
-                                    </>
-                                )
-                            })
-                        }
-                    </div>
-                    <div className="base-stat">
-                        {
-                            data.stats.map(poke=>{
-                                return(
-                                    <>
-                                        <h3>{poke.stat.name}:{poke.base_stat}</h3>
-                                    </>
-                                )
-                            })
-                        }
-                    </div>
-                </>
-            )
-        }
-
+          <h1>{data.name}</h1>
+          <img src={data.sprites.front_default} alt="" />
+          <div className="abilities">
+            {data.abilities.map((poke, index) => (
+              <div className="group" key={index}>
+                <h2>{poke.ability.name}</h2>
+              </div>
+            ))}
+          </div>
+          <div className="base-stat">
+            {data.stats.map((poke, index) => (
+              <h3 key={index}>
+                {poke.stat.name}: {poke.base_stat}
+              </h3>
+            ))}
+          </div>
         </>
-    )
-}
-export default Pokeinfo
+      ) : (
+        <p>No Pokemon data available</p>
+      )}
+    </>
+  );
+};
+
+export default Pokeinfo;

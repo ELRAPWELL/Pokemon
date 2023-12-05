@@ -1,62 +1,94 @@
-import React from "react";
-import Card from "./Card";
-import Pokeinfo from "./Pokeinfo";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useState } from "react";
-import { useEffect } from "react";
-const Main=()=>{
-    const [pokeData,setPokeData]=useState([]);
-    const [loading,setLoading]=useState(true);
-    const [url,setUrl]=useState("https://pokeapi.co/api/v2/pokemon/")
-    const [nextUrl,setNextUrl]=useState();
-    const [prevUrl,setPrevUrl]=useState();
-    const [pokeDex,setPokeDex]=useState();
+import Card from "./Card";
+import SearchBar from "./SearchBar"; // Assuming you have a SearchBar component
+import Pokeinfo from "./Pokeinfo";
 
-    const pokeFun=async()=>{
-        setLoading(true)
-        const res=await axios.get(url);
-        setNextUrl(res.data.next);
-        setPrevUrl(res.data.previous);
-        getPokemon(res.data.results)
-        setLoading(false)
+const Main = () => {
+  const [pokeData, setPokeData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [url, setUrl] = useState("https://pokeapi.co/api/v2/pokemon/");
+  const [nextUrl, setNextUrl] = useState();
+  const [prevUrl, setPrevUrl] = useState();
+  const [pokeDex,setPokeDex]=useState();
+
+  const pokeFun = async (fetchUrl) => {
+    try {
+      setLoading(true);
+      const res = await axios.get(fetchUrl);
+
+      setNextUrl(res.data.next);
+      setPrevUrl(res.data.previous);
+      getPokemon(res.data.results);
+
+      const newPokemonData = await Promise.all(
+        res.data.results.map(async (item) => {
+          const result = await axios.get(item.url);
+          return result.data;
+        })
+      );
+
+      setPokeData((prevData) => [...prevData, ...newPokemonData]);
+    } catch (error) {
+      console.error("Error fetching Pokemon data:", error);
+    } finally {
+      setLoading(false);
     }
-    const getPokemon=async(res)=>{
-       res.map(async(item)=>{
-          const result=await axios.get(item.url)
-          setPokeData(state=>{
-              state=[...state,result.data]
-              state.sort((a,b)=>a.id>b.id?1:-1)
-              return state;
-          })
-       })   
-    }
-    useState(()=>{
-        pokeFun();
-    },[url])
-    return(
-        <>
-            <div className="container">
-                <div className="left-content">
-                    <Card pokemon={pokeData} loading={loading} infoPokemon={poke=>setPokeDex(poke)}/>
-                    
-                    <div className="btn-group">
-                        {  prevUrl && <button onClick={()=>{
-                            setPokeData([])
-                           setUrl(prevUrl) 
-                        }}>Previous</button>}
+  };
 
-                        { nextUrl && <button onClick={()=>{
-                            setPokeData([])
-                            setUrl(nextUrl)
-                        }}>Next</button>}
+  useEffect(() => {
+    pokeFun(url);
+  }, [url]);
 
-                    </div>
-                </div>
-                <div className="right-content">
-                   <Pokeinfo data={pokeDex}/>
-                </div>
-            </div>
-        </>
-    )
-}
+  const handleSearch = (query) => {
+    // Perform search based on the query and update the state
+    const searchResults = pokeData.filter((pokemon) =>
+      pokemon.name.toLowerCase().includes(query.toLowerCase())
+    );
+    setPokeData(searchResults);
+  };
+
+  return (
+    <>
+      <SearchBar pokemonData={pokeData} onSearch={handleSearch} />
+      <div className="container">
+        <div className="left-content">
+          {loading ? (
+            <h1>Loading...</h1>
+          ) : (
+            <Card
+              pokemon={pokeData}
+              loading={loading}
+              infoPokemon={(poke) => console.log(poke)}
+            />
+          )}
+
+          <div className="btn-group">
+            {prevUrl && (
+              <button
+                onClick={() => {
+                  pokeFun(prevUrl);
+                }}
+              >
+                Previous
+              </button>
+            )}
+
+            {nextUrl && (
+              <button
+                onClick={() => {
+                  pokeFun(nextUrl);
+                }}
+              >
+                Next
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="right-content">{Pokeinfo}</div>
+      </div>
+    </>
+  );
+};
+
 export default Main;

@@ -32,14 +32,18 @@ body{
     justify-content: space-between;
     box-sizing: border-box;
 }
-.right-content{
+.right-content {
     width: 50%;
     text-align: center;
     color: black;
-    position: fixed;
-    top:100px;
-    right: 10px;
+    /* position: fixed; Remove this line */
+    /* top: 100px; Remove this line */
+    /* right: 10px; Remove this line */
+    margin-top: 100px; /* Adjust this based on your layout */
+    margin-right: 10px; /* Adjust this based on your layout */
 }
+
+
 .right-content img{
     margin: 1.5rem;
     height: 160px;
@@ -83,3 +87,29 @@ body{
     background-color: #b74555;
     border-radius: 8px;
 }
+
+/* SearchBar.css or your preferred CSS file */
+
+.search-bar {
+    display: flex;
+    align-items: center;
+  }
+  
+  .search-input {
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 8px;
+  }
+  
+  .search-button {
+    padding: 8px 16px;
+    font-size: 16px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
